@@ -1,0 +1,14 @@
+1. Fix clouds position (both of layers) +
+2. Fix the position of main player +
+3. Fix gg's animation (shadow)
+4. Implement colleagues's look out animation call +
+5. Implement time of the day +++
+6. Fix stage border collision with the main player +
+7. Configure the speed of food falling +
+8. Implement main menu ---
+9. Fix colleagues animation +
+10. Fix hit test function +
+11. Implement weather (rain, snow, sunny) ---
+13. Implement the changing of time of stuff drop
+14. Change the candy texture
+15. Add the score text (+10) on stuff collecting

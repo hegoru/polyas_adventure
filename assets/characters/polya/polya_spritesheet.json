@@ -1,0 +1,30 @@
+{
+  "frames": {
+    "run_1.png": {
+      "frame": { "x": 289, "y": 1, "w": 296, "h": 352 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 296, "h": 352 },
+      "sourceSize": { "w": 296, "h": 352 }
+    },
+    "run_2.png": {
+      "frame": { "x": 1, "y": 1, "w": 286, "h": 363 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 286, "h": 363 },
+      "sourceSize": { "w": 286, "h": 363 }
+    }
+  },
+  "animations": {
+    "run": ["run_1.png", "run_2.png"]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.1",
+    "image": "polya_spritesheet.png",
+    "format": "RGBA8888",
+    "size": { "w": 586, "h": 365 },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:64bd46258f31003687e43bed5be629d4:3be8e0624530105e25243f98f666c7fb:16a973d651912f72cc721f61617d656c$"
+  }
+}

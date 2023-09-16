@@ -1,0 +1,19 @@
+:root {
+  --type-family: sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--type-family);
+
+  margin: 0;
+}
+
+canvas {
+  display: block;
+}
