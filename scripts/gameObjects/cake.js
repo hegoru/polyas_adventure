@@ -7,5 +7,6 @@ export class Cake extends Stuff {
     this.satietyValue = 0.01;
     this.rotationSpeed = options.rotationSpeed || 0.05;
     this.fallingSpeed = options.fallingSpeed || 2;
+    this.tag = "cake";
   }
 }
