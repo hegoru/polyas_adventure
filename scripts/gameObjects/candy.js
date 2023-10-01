@@ -7,5 +7,6 @@ export class Candy extends Stuff {
     this.satietyValue = 0.07;
     this.rotationSpeed = options.rotationSpeed || 0.1;
     this.fallingSpeed = options.fallingSpeed || 3;
+    this.tag = "candy";
   }
 }
