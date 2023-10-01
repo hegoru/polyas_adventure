@@ -7,5 +7,6 @@ export class Coffee extends Stuff {
     this.satietyValue = 0.5;
     this.rotationSpeed = options.rotationSpeed || 0;
     this.fallingSpeed = options.fallingSpeed || 2;
+    this.tag = "coffee";
   }
 }
