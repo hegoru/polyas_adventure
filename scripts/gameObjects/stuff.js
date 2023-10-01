@@ -7,6 +7,7 @@ export class Stuff extends GameObject {
     this.satietyValue = options.value || 0.01;
     this.rotationSpeed = options.rotationSpeed || 0.1;
     this.fallingSpeed = options.fallingSpeed || 2;
+    this.tag = "stuff";
   }
 
   update() {
