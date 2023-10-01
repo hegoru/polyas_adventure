@@ -7,5 +7,6 @@ export class Hotdog extends Stuff {
     this.satietyValue = 0.03;
     this.rotationSpeed = options.rotationSpeed || 0.025;
     this.fallingSpeed = options.fallingSpeed || 2;
+    this.tag = "hotdog";
   }
 }
