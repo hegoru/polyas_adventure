@@ -24,19 +24,6 @@ async function init() {
   const manifest = {
     bundles: [
       {
-        name: "game-fonts",
-        assets: [
-          {
-            name: "GoldmanRegular",
-            srcs: "fonts/goldman_regular.ttf",
-          },
-          {
-            name: "GoldmanBold",
-            srcs: "fonts/goldman_bold.ttf",
-          },
-        ],
-      },
-      {
         name: "menu-screen",
         assets: [
           {
@@ -98,11 +85,7 @@ async function init() {
           },
           {
             name: "candy",
-            srcs: "assets/stuff/candy_black_border.svg",
-          },
-          {
-            name: "gameOverText",
-            srcs: "assets/controls/game_over_text.png",
+            srcs: "assets/stuff/candy.svg",
           },
           {
             name: "gameOverTable",
@@ -119,11 +102,7 @@ async function init() {
 
   await PIXI.Assets.init({ manifest: manifest });
 
-  PIXI.Assets.backgroundLoadBundle([
-    "game-fonts",
-    "menu-screen",
-    "game-screen",
-  ]);
+  PIXI.Assets.backgroundLoadBundle(["menu-screen", "game-screen"]);
 
   // makeMenuScreen();
   makeGameScreen();
@@ -213,7 +192,6 @@ async function init() {
 // }
 
 async function makeGameScreen() {
-  // const gameFonts = await PIXI.Assets.loadBundle("game-fonts");
   const gameScreenAssets = await PIXI.Assets.loadBundle("game-screen");
 
   const game = new Game();
@@ -251,7 +229,9 @@ async function makeGameScreen() {
   PIXI.sound.add("laugh", "../audio/laugh.wav");
   PIXI.sound.add("gameOver", "../audio/stomach_growl.wav");
 
-  const setBackroundColor = (color) => (app.renderer.background.color = color);
+  const setBackroundColor = (color) => {
+    app.renderer.background.color = color;
+  };
 
   const initLevel = () => {
     app.stage.interactive = true;
@@ -269,6 +249,7 @@ async function makeGameScreen() {
     const polyaLayout = new Layout();
     const stuffLayout = new Layout();
     const controlsLayout = new Layout();
+    const gameOverLayout = new Layout();
 
     sceneryLayout.addChild(cloudsBackLayout);
     sceneryLayout.addChild(cloudsFrontLayout);
@@ -282,6 +263,13 @@ async function makeGameScreen() {
     const brightnessFilter = new PIXI.ColorMatrixFilter();
     app.stage.filters = [brightnessFilter];
     brightnessFilter.brightness(scene.brightness, false);
+
+    const collectedStuff = [
+      { name: "candy", amount: 0 },
+      { name: "hotdog", amount: 0 },
+      { name: "cake", amount: 0 },
+      { name: "coffee", amount: 0 },
+    ];
 
     const bgClouds = new Group();
     const totalBgCloudsBack = Randomizer.intBetween(2, 4);
@@ -394,7 +382,7 @@ async function makeGameScreen() {
     polya.animationSpeed = 1 / 5;
     polya.anchor.set(0.5, 0);
     polya.x = polya.width * 1.25;
-    polya.y = app.view.height - polya.height* 1.075;
+    polya.y = app.view.height - polya.height * 1.075;
     polya.interactive = true;
     polyaLayout.addChild(polya);
 
@@ -470,6 +458,7 @@ async function makeGameScreen() {
     app.stage.addChild(polyaLayout);
     app.stage.addChild(stuffLayout);
     app.stage.addChild(controlsLayout);
+    app.stage.addChild(gameOverLayout);
 
     const buildingsBgFilter = new PIXI.ColorMatrixFilter();
     buildingsBackLayout.filters = [buildingsBgFilter];
@@ -613,6 +602,10 @@ async function makeGameScreen() {
       stuffInactiveLayout.addChild(inactiveThing);
     };
 
+    const increaseCollectedStuffBy = (stuff) => {
+      collectedStuff.find((item) => item.name === stuff.tag).amount++;
+    };
+
     const updateStuff = () => {
       for (const thing of stuff.elems) {
         if (thing.y + thing.height > app.renderer.height) {
@@ -624,11 +617,12 @@ async function makeGameScreen() {
           thing.update();
 
           if (thing.hitTest(polya)) {
-            polya.saturateBy(thing.satietyValue);
+            increaseCollectedStuffBy(thing);
 
             stuff.remove(thing);
             stuffLayout.removeChild(thing);
 
+            polya.saturateBy(thing.satietyValue);
             game.increaseScoreBy(thing.scoreValue);
             updateScoreText();
 
@@ -702,55 +696,90 @@ async function makeGameScreen() {
       return replayBtn;
     };
 
+    const resetStageFilters = () => {
+      app.stage.filters = [];
+    };
+
+    const createGameOverTable = () => {
+      const gameOverScoreTable = new PIXI.Sprite(
+        gameScreenAssets.gameOverTable
+      );
+      gameOverScoreTable.x = app.renderer.width * 0.5;
+      gameOverScoreTable.y = app.renderer.height * 0.25;
+      gameOverScoreTable.anchor.set(0.5, 0);
+
+      gameOverLayout.addChild(gameOverScoreTable);
+
+      for (let i = 0; i < collectedStuff.length; i++) {
+        const itemLayout = new PIXI.Container();
+        itemLayout.x = -gameOverScoreTable.x * 0.25 + i * 150;
+        itemLayout.y = gameOverScoreTable.height * 0.42;
+
+        let itemImageSource = "";
+        switch (collectedStuff[i].name) {
+          case "candy":
+            itemImageSource = gameScreenAssets.candy;
+            break;
+          case "hotdog":
+            itemImageSource = gameScreenAssets.hotdog;
+            break;
+          case "cake":
+            itemImageSource = gameScreenAssets.cake;
+            break;
+          case "coffee":
+            itemImageSource = gameScreenAssets.coffee;
+            break;
+          default:
+            itemImageSource = gameScreenAssets.candy;
+            break;
+        }
+        const itemImage = new PIXI.Sprite(itemImageSource);
+        itemImage.anchor.set(0.5);
+        itemImage.x = 0;
+        itemImage.y = 0;
+        itemImage.scale.set(0.5);
+        itemLayout.addChild(itemImage);
+
+        const itemScoreText = new PIXI.Text(collectedStuff[i].amount, {
+          fontFamily: "Arial",
+          fontSize: 36,
+          fill: "#ffffff",
+          stroke: "#4a1850",
+          strokeThickness: 2,
+        });
+        itemScoreText.anchor.set(1, 0);
+        itemScoreText.x = itemImage.width * 0.25;
+        itemScoreText.y = itemImage.height - 8;
+        itemLayout.addChild(itemScoreText);
+
+        gameOverScoreTable.addChild(itemLayout);
+      }
+
+      const replayBtn = new PIXI.Sprite(gameScreenAssets.tryAgainBtn);
+      replayBtn.x = 0;
+      replayBtn.y = gameOverScoreTable.height - replayBtn.height - 24;
+      replayBtn.anchor.set(0.5);
+      replayBtn.interactive = true;
+      gameOverScoreTable.addChild(replayBtn);
+
+      const onReplayBtnPress = function () {
+        location.reload();
+      };
+      replayBtn.on("pointerdown", onReplayBtnPress);
+    };
+
     const gameOver = () => {
       app.ticker.stop();
 
       PIXI.sound.stop("level");
       PIXI.sound.play("gameOver");
 
-      app.stage.filters = [];
+      resetStageFilters();
 
-      const gameOverLayout = new Layout();
-
-      // TODO inclue Goldman font
-      // const gameOverText = new PIXI.Text("GAME OVER", {
-      //   fontFamily: "Arial",
-      //   fontSize: 96,
-      //   fontWeight: "bold",
-      //   fill: "#F7A12F",
-      //   stroke: "#000000",
-      //   strokeThickness: 6,
-      //   lineJoin: "round",
-      // });
-      const gameOverText = new PIXI.Sprite(gameScreenAssets.gameOverText);
-      gameOverText.x = app.renderer.width * 0.5;
-      gameOverText.y = 60;
-      gameOverText.anchor.set(0.5);
-      gameOverLayout.addChild(gameOverText);
-
-      const gameOverScoreTable = new PIXI.Sprite(
-        gameScreenAssets.gameOverTable
-      );
-      gameOverScoreTable.x = app.renderer.width * 0.5;
-      gameOverScoreTable.y = app.renderer.height * 0.5;
-      gameOverScoreTable.anchor.set(0.5);
-      gameOverLayout.addChild(gameOverScoreTable);
-
-      const replayBtn = new PIXI.Sprite(gameScreenAssets.tryAgainBtn);
-      replayBtn.x = app.renderer.width / 2;
-      replayBtn.y = gameOverScoreTable.y + gameOverScoreTable.height * 0.5 + 50;
-      replayBtn.anchor.set(0.5);
-      replayBtn.interactive = true;
-
-      const onReplayBtnPress = function () {
-        location.reload();
-      };
-      replayBtn.on("pointerdown", onReplayBtnPress);
-
-      gameOverLayout.addChild(replayBtn);
-
-      app.stage.addChild(gameOverLayout);
+      createGameOverTable();
     };
+
+    // polya.satiety = 0.01;
 
     let localTime = 0.0;
     const maxLocalTime = 0.5;
